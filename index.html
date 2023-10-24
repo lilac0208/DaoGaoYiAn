@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>道高易安</title>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<style type="text/css" media="screen">
+		html {
+			height: 100%;
+			width: 100%;
+		}
+		#map {
+			position: absolute;
+			left: 0;
+			height: 100%;
+			width: 100vw;
+		}
+		#body {
+			height: 100%;
+			width: 100vw;
+			position: relative;
+			top: 0;
+			left: 0;
+		}
+		
+		h1,
+		h2 {
+			text-align: center;
+		}
+		
+		</style>
+
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOArSX-mQHbwuDUn1H5H2AUb8sFk1CpdY&libraries=visualization&v=weekly"></script>
+	
+	<script>
+
+		if(navigator.geolocation) {
+
+			
+var  mapCenter= {lat: 0, lng: 0};
+// 使用者不提供權限，或是發生其它錯誤
+function error() {
+  alert('無法取得你的位置');
+}
+
+// 使用者允許抓目前位置，回傳經緯度
+function success(position) {
+  console.log(position.coords.latitude, position.coords.longitude);
+
+ 
+              
+  //mapCenter = {lat: position.coords.latitude, lng: position.coords.longitude};
+}
+
+// 跟使用者拿所在位置的權限
+
+
+} else {
+alert('Sorry, 你的裝置不支援地理位置功能。')
+}
+
+		function initMap() {
+				
+			navigator.geolocation.getCurrentPosition(success, error);
+			// 定義地圖的中心位置
+			
+			var mapCenter = {lat: 23.453847400858372, lng:120.46074768454937};
+			
+			// 建立地圖
+			var map = new google.maps.Map(document.getElementById('map'), {
+				zoom: 12,
+				center: mapCenter
+			});
+			const trafficLayer = new google.maps.TrafficLayer();//路況
+
+			trafficLayer.setMap(map);
+		   
+ 
+			
+			/*const bikeLayer = new google.maps.BicyclingLayer();//自行車道
+		  
+		  	bikeLayer.setMap(map);*/
+			// 載入JSON資料
+			fetch('data.json')
+			  .then(response => response.json())
+			  .then(data => {
+			    data.forEach(item => {
+			      // 取得每一個地點的座標
+			      var location = {lat: item.lat, lng: item.lng};
+				  var image ='其他.png'
+					if(item.roadtype =='道路施工')
+					image = '道路施工.png'
+						else if(item.roadtype =='交通障礙')	
+					    image = '交通障礙.png'
+						else if(item.roadtype =='事故')
+						image = '事故.png'
+				   // 選擇圖示
+				   var icon = {
+					
+			        url: image,
+			        scaledSize: new google.maps.Size(50, 50),
+					anchor: new google.maps.Point(0, 0),
+					fillOpacity: 1.0
+			      };
+
+				   
+
+			      // 在地圖上標記每一個地點
+			      var marker = new google.maps.Marker({
+			        position: location,
+			        map: map,
+			        title: item.name ,
+					icon: icon
+			      });
+
+			      // 建立InfoWindow物件
+			      var infoWindow = new google.maps.InfoWindow({
+			        content: `<h3>${item.roadtype}</h3>
+					<p>地點：${item.areaNm}</p>
+					<p>發生時間：${item.modDttm}</p>
+					<p>方向：${item.direction}</p>
+					<p>概況說明：${item.comment}</p>
+					
+					`	
+			      });
+
+			      // 在標記上添加點擊事件
+			      marker.addListener('click', function() {
+			        infoWindow.open(map, marker);
+			      });
+			    });
+			  });
+
+			  var heatMapData = [
+  {location: new google.maps.LatLng(23.453847400858372, 120.46074768454937), weight: 0.5},
+  {location: new google.maps.LatLng(23.457086, 120.458905), weight: 3},
+  {location: new google.maps.LatLng(23.466177, 120.470761), weight: 4},
+  {location: new google.maps.LatLng(23.468249, 120.476530), weight: 3},
+  
+];
+
+var heatmap = new google.maps.visualization.HeatmapLayer({
+  data: heatMapData,
+  radius: 20
+});
+heatmap.setMap(map);
+
+//計算路徑
+
+var directionsService = new google.maps.DirectionsService;
+      var directionsDisplay = new google.maps.DirectionsRenderer({
+    draggable: true,
+    map,
+    panel: document.getElementById("panel"),
+  });
+      
+
+      // 这里可以添加导航的起点和终点，然后使用DirectionsService来检索路线
+      // 示例：
+      document.getElementById('calculate-route').addEventListener('click', function() {
+      var start = document.getElementById('start').value;
+        var end = document.getElementById('end').value;
+		var selectedMode = document.getElementById('mode').value;
+		
+		const waypts = [
+			{location: document.getElementById("waypoints").value}
+		];
+		const checkboxArray = document.getElementById("waypoints");
+
+		for (let i = 0; i < checkboxArray.length; i++) {
+    			if (checkboxArray.options[i].selected) {
+      waypts.push({
+        location: checkboxArray[i].value,
+        stopover: true,
+      });
+    }
+  }
+
+      directionsService.route({
+        origin: start,
+        destination: end,
+        travelMode: google.maps.TravelMode[selectedMode],
+		waypoints: waypts,
+		optimizeWaypoints: true,
+      }, function(response, status) {
+        if (status === 'OK') {
+          directionsDisplay.setDirections(response);
+		  const route = response.routes[0];
+      const summaryPanel = document.getElementById("directions-panel");
+			
+      summaryPanel.innerHTML = "";
+	   // For each route, display summary information.
+	   for (let i = 0; i < route.legs.length; i++) {
+        const routeSegment = i + 1;
+
+        summaryPanel.innerHTML +=
+          "<b>Route Segment: " + routeSegment + "</b><br>";
+        summaryPanel.innerHTML += route.legs[i].start_address + " to ";
+        summaryPanel.innerHTML += route.legs[i].end_address + "<br>";
+        summaryPanel.innerHTML += route.legs[i].distance.text + "<br><br>";
+      }
+        } else {
+          window.alert('無法繪製：' + status);
+        }
+      });
+    });
+	// 先確認使用者裝置能不能抓地點
+		}
+	</script>
+</head>
+<body onload="initMap()">
+	<input id="start" type="text" placeholder="起點">
+	<input id="waypoints" type="text" placeholder="中繼點">
+	<input id="end" type="text" placeholder="終點">
+	
+	<select id="mode" onchange="calcRoute();">
+		<option value="DRIVING">汽車</option>
+		<option value="WALKING">步行</option>
+		<option value="BICYCLING">自行車</option>
+		<option value="TRANSIT">大眾運輸</option>
+	  </select>
+	  <button id="calculate-route">路線規劃</button>
+
+	<div id="map" ></div>
+	
+</body>
+</html>
