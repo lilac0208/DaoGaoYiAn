@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head>	
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
 	<title>道高易安</title>
 	<meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -28,12 +29,25 @@
 		h2 {
 			text-align: center;
 		}
-		
+		/* Styling for Autocomplete search bar */
+		#search-bar {
+        position: absolute;
+        top: 20px;
+        left: 50%; /* 使用左上角作為基準點 */
+  transform: translateX(-50%); /* 將搜索欄水平居中 */
+        z-index: 1;
+        background-color: #000000;
+        padding: 1px;
+        border-radius: 5px;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+      }
+	  
 		</style>
 
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOArSX-mQHbwuDUn1H5H2AUb8sFk1CpdY&libraries=visualization&v=weekly"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOArSX-mQHbwuDUn1H5H2AUb8sFk1CpdY&libraries=places,visualization&v=weekly" async defer></script>
 	
 	<script>
+	
 
 		if(navigator.geolocation) {
 
@@ -48,8 +62,6 @@ function error() {
 function success(position) {
   console.log(position.coords.latitude, position.coords.longitude);
 
- 
-              
   //mapCenter = {lat: position.coords.latitude, lng: position.coords.longitude};
 }
 
@@ -59,29 +71,101 @@ function success(position) {
 } else {
 alert('Sorry, 你的裝置不支援地理位置功能。')
 }
+//按鈕控制
+var accident=0;
 
+var danger=0;
+
+var NCYUmap	=0;
+class CustomControl2 {
+    constructor(controlDiv, map) {
+      // 在這裡可以自定義按鈕的外觀和功能
+      controlDiv.innerHTML = '<button onclick="customButtonClick2()">嘉義大學安全地圖</button>';
+    }
+  }
+ function customButtonClick2() {
+   
+	if(NCYUmap == 0)
+	NCYUmap=1;
+	else if (NCYUmap == 1)
+	NCYUmap=0;
+	initMap();
+  }
+
+class CustomControl {
+
+    constructor(controlDiv, map) {
+      // 在這裡可以自定義按鈕的外觀和功能
+      controlDiv.innerHTML = '<button onclick="customButtonClick()">即時事故資訊</button>';
+    }
+  }
+ function customButtonClick() {
+    
+
+	if(accident == 0)
+	accident=1;
+	else if(accident == 1)
+	accident=0;
+	initMap();
+  }
+  class CustomControl1 {
+    constructor(controlDiv, map) {
+      // 在這裡可以自定義按鈕的外觀和功能
+      controlDiv.innerHTML = '<button onclick="customButtonClick1()">查看危險路口</button>';
+    }
+  }
+ function customButtonClick1() {
+    
+	if(danger == 0)
+	danger=1;
+	else if(danger == 1)
+	danger=0;
+	initMap();
+  }
+
+  
 		function initMap() {
-				
+			console.log("事故:",accident);
+			
+			console.log("危險:",danger);
+			
+			console.log("安全地圖:", NCYUmap);
 			navigator.geolocation.getCurrentPosition(success, error);
 			// 定義地圖的中心位置
 			
-			var mapCenter = {lat: 23.453847400858372, lng:120.46074768454937};
+			var mapCenter = {lat: 23.468068723635856, lng:120.48487789606068};
 			
 			// 建立地圖
 			var map = new google.maps.Map(document.getElementById('map'), {
-				zoom: 12,
+				zoom: 16,
 				center: mapCenter
 			});
 			const trafficLayer = new google.maps.TrafficLayer();//路況
 
 			trafficLayer.setMap(map);
 		   
- 
+			// 按鈕
+			const customControlDiv = document.createElement("div");
+   		 const customControl = new CustomControl(customControlDiv, map);
+
+    customControlDiv.index = 1;
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(customControlDiv);
 			
-			/*const bikeLayer = new google.maps.BicyclingLayer();//自行車道
-		  
-		  	bikeLayer.setMap(map);*/
+
+	const customControlDiv1 = document.createElement("div1");
+    const customControl1 = new CustomControl1(customControlDiv1, map );
+
+
+	customControlDiv1.index = 1;
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(customControlDiv1);
+	const customControlDiv2 = document.createElement("div2");
+    const customControl2 = new CustomControl2(customControlDiv2, map);
+
+	customControlDiv2.index = 1;
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(customControlDiv2);
+
 			// 載入JSON資料
+			if(accident == 1){
 			fetch('data.json')
 			  .then(response => response.json())
 			  .then(data => {
@@ -99,7 +183,7 @@ alert('Sorry, 你的裝置不支援地理位置功能。')
 				   var icon = {
 					
 			        url: image,
-			        scaledSize: new google.maps.Size(50, 50),
+			        scaledSize: new google.maps.Size(40, 40),
 					anchor: new google.maps.Point(0, 0),
 					fillOpacity: 1.0
 			      };
@@ -131,13 +215,128 @@ alert('Sorry, 你的裝置不支援地理位置功能。')
 			      });
 			    });
 			  });
+			}
+			if(NCYUmap ==1){
 
+        fetch('NCYU.json')
+			  .then(response => response.json())
+			  .then(data => {
+			    data.forEach(item => {
+			      // 取得每一個地點的座標
+			      var location = {lat: item.lat, lng: item.lng};
+            image = 'Chiabao.png'
+				   // 選擇圖示
+				   var icon = {
+					
+			        url: image,
+			        scaledSize: new google.maps.Size(50, 50),
+					anchor: new google.maps.Point(0, 0),
+					fillOpacity: 1.0
+			      };
+
+				   
+
+			      // 在地圖上標記每一個地點
+			      var marker = new google.maps.Marker({
+			        position: location,
+			        map: map,
+			        title: item.name ,
+					icon: icon
+			      });
+
+			      // 建立InfoWindow物件
+			      var infoWindow = new google.maps.InfoWindow({
+               content: `<img src="/NCYUMAP/${item.png}.png " alt="Image" style="max-width: 100%;">`
+			       /* content: `<h3>${item.roadtype}</h3>
+					<p>地點：${item.areaNm}</p>
+					<p>發生時間：${item.modDttm}</p>
+					<p>方向：${item.direction}</p>
+					<p>概況說明：${item.comment}</p>
+					
+					`	*/
+			      });
+
+			      // 在標記上添加點擊事件
+			      marker.addListener('click', function() {
+			        infoWindow.open(map, marker);
+			      });
+			    });
+			  });
+		
+}
+			if(danger==1){
 			  var heatMapData = [
-  {location: new google.maps.LatLng(23.453847400858372, 120.46074768454937), weight: 0.5},
-  {location: new google.maps.LatLng(23.457086, 120.458905), weight: 3},
-  {location: new google.maps.LatLng(23.466177, 120.470761), weight: 4},
-  {location: new google.maps.LatLng(23.468249, 120.476530), weight: 3},
+  {location: new google.maps.LatLng(23.46934655140745, 120.45436156926964), weight: 4},
+ 
+  {location: new google.maps.LatLng(23.46826074567207, 120.4429645142968), weight: 4},
+  {location: new google.maps.LatLng(23.47113558776096, 120.43054728558022), weight: 4},
+
+  {location: new google.maps.LatLng(23.477572759244197, 120.43431372658817), weight: 4},
+  {location: new google.maps.LatLng(23.476312783440424, 120.45358672853546), weight: 4},
+  {location: new google.maps.LatLng(23.488799551761407, 120.46355481266251), weight: 4},
+  {location: new google.maps.LatLng(23.47774435298203, 120.46982795029747), weight:4 },
+
+  {location: new google.maps.LatLng(23.469840, 120.427364), weight: 4},
+  {location: new google.maps.LatLng(23.481740, 120.496400), weight: 4},
+  {location: new google.maps.LatLng(23.465880, 120.454600), weight: 3},
+  {location: new google.maps.LatLng( 23.455056, 120.442741 ), weight: 3},
+  {location: new google.maps.LatLng(23.468937, 120.428612), weight: 3},
+  {location: new google.maps.LatLng( 23.486825, 120.456863 ), weight: 3}, 
+  {location: new google.maps.LatLng(23.473946, 120.451668), weight: 3},
+  {location: new google.maps.LatLng( 23.494158, 120.456635 ), weight: 3}, 
+  {location: new google.maps.LatLng(23.485742, 120.436135), weight: 3},
+  {location: new google.maps.LatLng(23.479544, 120.420189 ), weight: 3}, 
+  {location: new google.maps.LatLng(23.479076, 120.429144), weight: 3},
+  {location: new google.maps.LatLng( 23.447869, 120.436513 ), weight: 3}, 
+  {location: new google.maps.LatLng(23.477829, 120.453435), weight: 3},
+  {location: new google.maps.LatLng( 23.476602, 120.456303 ), weight: 3}, 
+  {location: new google.maps.LatLng(23.48527, 120.441117), weight: 3},
+  {location: new google.maps.LatLng( 23.506612, 120.436877 ), weight: 3}, 
+
+  {location: new google.maps.LatLng(23.496831, 120.451347), weight: 2},
+  {location: new google.maps.LatLng(23.477828, 120.453425), weight: 2},
+  {location: new google.maps.LatLng(23.471411, 120.447092), weight: 2},
+  {location: new google.maps.LatLng(23.488677, 120.43432), weight: 2},
+
+  {location: new google.maps.LatLng(23.4657593, 120.466504), weight: 2},
+  {location: new google.maps.LatLng(23.49528,120.4662), weight: 2},
+  {location: new google.maps.LatLng(23.494547,120.440093), weight: 2},
+  {location: new google.maps.LatLng(23.505323, 120.447717), weight: 2},
+
+  {location: new google.maps.LatLng(23.46469, 120.4402), weight: 2},
+  {location: new google.maps.LatLng(23.478123, 120.428339), weight: 2},
+
+  {location: new google.maps.LatLng(23.477158001513626, 120.47578254703808), weight: 1},
+  {location: new google.maps.LatLng(23.47705055315804, 120.46170024965379), weight: 1},
+  {location: new google.maps.LatLng(23.474923858658574, 120.4616100312522), weight: 1},
+  {location: new google.maps.LatLng(23.476587151831545, 120.45588116305392), weight: 1},
+
+  {location: new google.maps.LatLng(23.477803576854903, 120.45346330993777), weight: 1},
+  {location: new google.maps.LatLng(23.47999642356275, 120.45433842844662), weight: 1},
+  {location: new google.maps.LatLng(23.48387725916891, 120.46084317511679), weight: 1},
+  {location: new google.maps.LatLng(23.48279328461713, 120.452506994945980), weight: 1},
   
+  {location: new google.maps.LatLng(23.479877919215465, 120.44948705024534), weight: 1},
+  {location: new google.maps.LatLng(23.482174130471304, 120.44904703719807), weight: 1},
+  {location: new google.maps.LatLng(23.48250812150076, 120.45123192991586), weight: 1},
+  {location: new google.maps.LatLng(23.484191980058647, 120.4485918512152), weight: 1},
+
+  {location: new google.maps.LatLng(23.483036938900884, 120.44580004385357), weight: 1},
+  {location: new google.maps.LatLng(23.481867971284615, 120.44592142678235), weight: 1},
+  {location: new google.maps.LatLng(23.47955783814479, 120.44619453837207), weight: 1},
+  {location: new google.maps.LatLng(23.47937692239529, 120.44410068285083), weight: 1},
+
+  {location: new google.maps.LatLng(23.478555840088042, 120.44144543153618), weight: 1},
+  {location: new google.maps.LatLng(23.475048787012483, 120.43930605741669), weight: 1},
+  {location: new google.maps.LatLng(23.475313210930665, 120.44218890197489), weight: 1},
+  {location: new google.maps.LatLng(23.475715299877255, 120.44661232589758), weight: 1},
+
+  {location: new google.maps.LatLng(23.472175316558218, 120.45400946230153), weight: 1},
+  {location: new google.maps.LatLng(23.47960836390653, 120.42517278715563), weight: 1},
+  {location: new google.maps.LatLng(23.47928828214964, 120.4249603670303), weight: 1},
+
+
+
 ];
 
 var heatmap = new google.maps.visualization.HeatmapLayer({
@@ -145,62 +344,141 @@ var heatmap = new google.maps.visualization.HeatmapLayer({
   radius: 20
 });
 heatmap.setMap(map);
-
+			}
 //計算路徑
+// 創建搜尋欄
+/*var input1 = document.getElementById('start');
+        var searchBox = new google.maps.places.SearchBox(input1);
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(input1);
+
+        // 監聽搜尋框的變化
+        map.addListener('bounds_changed', function() {
+          searchBox.setBounds(map.getBounds());
+        });
+
+        // 當使用者選擇建議時，在地圖上顯示選定的位置
+        searchBox.addListener('places_changed', function() {
+          var places = searchBox.getPlaces();
+
+          if (places.length == 0) {
+            return;
+          }
+
+          var bounds = new google.maps.LatLngBounds();
+          places.forEach(function(place) {
+            if (!place.geometry) {
+              console.log("Returned place contains no geometry");
+              return;
+            }
+
+            // 調整地圖視窗以顯示所選定的位置
+            if (place.geometry.viewport) {
+              bounds.union(place.geometry.viewport);
+            } else {
+              bounds.extend(place.geometry.location);
+            }
+          });
+
+          map.fitBounds(bounds);
+        });
+// 創建搜尋欄
+var input2 = document.getElementById('end');
+        var searchBox2 = new google.maps.places.SearchBox(input2);
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(input2);
+
+        // 監聽搜尋框的變化
+        map.addListener('bounds_changed', function() {
+          searchBox2.setBounds(map.getBounds());
+        });
+
+        // 當使用者選擇建議時，在地圖上顯示選定的位置
+        searchBox2.addListener('places_changed', function() {
+          var places2 = searchBox2.getPlaces();
+
+          if (places2.length == 0) {
+            return;
+          }
+
+          var bounds2 = new google.maps.LatLngBounds();
+          places2.forEach(function(place) {
+            if (!place.geometry) {
+              console.log("Returned place contains no geometry");
+              return;
+            }
+
+            // 調整地圖視窗以顯示所選定的位置
+            if (place.geometry.viewport) {
+              bounds2.union(place.geometry.viewport);
+            } else {
+              bounds2.extend(place.geometry.location);
+            }
+          });
+
+          map.fitBounds(bounds2);
+        });*/
+
 
 var directionsService = new google.maps.DirectionsService;
-      var directionsDisplay = new google.maps.DirectionsRenderer({
+    var directionsDisplay = new google.maps.DirectionsRenderer({
     draggable: true,
     map,
     panel: document.getElementById("panel"),
   });
       
-
-      // 这里可以添加导航的起点和终点，然后使用DirectionsService来检索路线
+      
+      // 
       // 示例：
       document.getElementById('calculate-route').addEventListener('click', function() {
       var start = document.getElementById('start').value;
         var end = document.getElementById('end').value;
 		var selectedMode = document.getElementById('mode').value;
-		
-		const waypts = [
-			{location: document.getElementById("waypoints").value}
-		];
-		const checkboxArray = document.getElementById("waypoints");
+	/*	var avoidPoints = [
+  new google.maps.LatLng(23.474872853661417, 120.46174808141028),
+  // 添加其他要避免的點...
+];*/
+		/*const waypts = [
+			{location: '23.474872853661417, 120.46174808141028',
+			stopover: false
+		}
+		];*/
+		/*const checkboxArray = document.getElementById("waypoints");*/
 
-		for (let i = 0; i < checkboxArray.length; i++) {
+		/*for (let i = 0; i < checkboxArray.length; i++) {
     			if (checkboxArray.options[i].selected) {
       waypts.push({
         location: checkboxArray[i].value,
-        stopover: true,
+        stopover: false,
       });
     }
-  }
+  }*/
 
       directionsService.route({
         origin: start,
         destination: end,
         travelMode: google.maps.TravelMode[selectedMode],
-		waypoints: waypts,
-		optimizeWaypoints: true,
+		provideRouteAlternatives: true,
+	/*	waypoints: waypts,*/
+		/*optimizeWaypoints: true,*/
       }, function(response, status) {
         if (status === 'OK') {
-          directionsDisplay.setDirections(response);
-		  const route = response.routes[0];
+         directionsDisplay.setDirections(response);
       const summaryPanel = document.getElementById("directions-panel");
-			
-      summaryPanel.innerHTML = "";
+	  summaryPanel.innerHTML = "";
+  
 	   // For each route, display summary information.
 	   for (let i = 0; i < route.legs.length; i++) {
-        const routeSegment = i + 1;
 
+        const routeSegment = i + 1;
+		
         summaryPanel.innerHTML +=
           "<b>Route Segment: " + routeSegment + "</b><br>";
         summaryPanel.innerHTML += route.legs[i].start_address + " to ";
         summaryPanel.innerHTML += route.legs[i].end_address + "<br>";
         summaryPanel.innerHTML += route.legs[i].distance.text + "<br><br>";
       }
-        } else {
+	 
+	  }
+	  else {
           window.alert('無法繪製：' + status);
         }
       });
@@ -210,18 +488,20 @@ var directionsService = new google.maps.DirectionsService;
 	</script>
 </head>
 <body onload="initMap()">
-	<input id="start" type="text" placeholder="起點">
-	<input id="waypoints" type="text" placeholder="中繼點">
-	<input id="end" type="text" placeholder="終點">
-	
-	<select id="mode" onchange="calcRoute();">
-		<option value="DRIVING">汽車</option>
-		<option value="WALKING">步行</option>
-		<option value="BICYCLING">自行車</option>
-		<option value="TRANSIT">大眾運輸</option>
-	  </select>
-	  <button id="calculate-route">路線規劃</button>
+	<div id="search-bar">
 
+		<input id="start" type="text" placeholder	="起點...">
+		<input id="end" type="text" placeholder="終點...">	  
+		<select id="mode" onchange="calcRoute();">
+			<option value="DRIVING">汽車</option>
+			<option value="WALKING">步行</option>
+			<option value="BICYCLING">自行車</option>
+		  </select>
+		  <button id="calculate-route">路線規劃</button>
+		</div>
+
+	
+	
 	<div id="map" ></div>
 	
 </body>
