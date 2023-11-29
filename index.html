@@ -17,14 +17,34 @@
 			height: 100%;
 			width: 100vw;
 		}
-		#body {
-			height: 100%;
-			width: 100vw;
-			position: relative;
-			top: 0;
-			left: 0;
-		}
-		
+		body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+     /* 在螢幕寬度小於 600px 時應用的樣式 */
+     @media (max-width: 600px) {
+      body {
+        font-size: 14px;
+      }
+    }
+
+    /* 在螢幕寬度大於 600px 時應用的樣式 */
+    @media (min-width: 601px) {
+      body {
+        font-size: 16px;
+      }
+    }
+    .custom-button {
+    padding: 4px 20px; /* 調整按鈕的上下和左右 padding */
+    font-size: 14px;    /* 調整按鈕文字的大小 */
+    background-color: #ffffff; /* 設定按鈕的背景顏色 */
+    color: #000000;        /* 設定按鈕文字的顏色 */
+    border: none;       /* 移除按鈕的邊框 */
+    border-radius: 5px;  /* 設定按鈕的邊框半徑，使其看起來更圓角 */
+    cursor: pointer;    /* 讓滑鼠指標變成手型，表示可以點擊 */
+  }
 		h1,
 		h2 {
 			text-align: center;
@@ -36,12 +56,39 @@
         left: 50%; /* 使用左上角作為基準點 */
   transform: translateX(-50%); /* 將搜索欄水平居中 */
         z-index: 1;
-        background-color: #000000;
+        
         padding: 1px;
         border-radius: 5px;
-        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
       }
-	  
+      textarea, button {
+        
+      vertical-align: bottom;
+    }
+      form
+      {
+        position: absolute;
+        padding: 1px;
+        border-radius: 5px;
+      }
+      textarea{
+    padding: 20px 20px; /* 調整按鈕的上下和左右 padding */
+    margin-bottom: 10px; /* 设置下边距为 10 像素 */
+    border: none;       /* 移除按鈕的邊框 */
+    border-radius: 5px;  /* 設定按鈕的邊框半徑，使其看起來更圓角 */
+
+      }
+      .custom-button1 {
+        margin-bottom: 10px; /* 设置下边距为 10 像素 */
+   
+    padding: 24px 20px; /* 調整按鈕的上下和左右 padding */
+    font-size: 14px;    /* 調整按鈕文字的大小 */
+    background-color: #ffffff; /* 設定按鈕的背景顏色 */
+    color: #000000;        /* 設定按鈕文字的顏色 */
+    border: none;       /* 移除按鈕的邊框 */
+    border-radius: 5px;  /* 設定按鈕的邊框半徑，使其看起來更圓角 */
+    cursor: pointer;    /* 讓滑鼠指標變成手型，表示可以點擊 */
+  }
+     
 		</style>
 
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDOArSX-mQHbwuDUn1H5H2AUb8sFk1CpdY&libraries=places,visualization&v=weekly" async defer></script>
@@ -74,13 +121,31 @@ alert('Sorry, 你的裝置不支援地理位置功能。')
 //按鈕控制
 var accident=0;
 
+var addtion =0;
+
 var danger=0;
 
 var NCYUmap	=0;
+
+class CustomControl3 {
+    constructor(controlDiv, map) {
+      // 在這裡可以自定義按鈕的外觀和功能
+      controlDiv.innerHTML = '<button class="custom-button" onclick="customButtonClick3()">加入</button>';
+    }
+  }
+ function customButtonClick3() {
+   
+	if(addtion == 0)
+	addtion=1;
+	else if (addtion == 1)
+	addtion=0;
+	initMap();
+  }
+
 class CustomControl2 {
     constructor(controlDiv, map) {
       // 在這裡可以自定義按鈕的外觀和功能
-      controlDiv.innerHTML = '<button onclick="customButtonClick2()">嘉義大學安全地圖</button>';
+      controlDiv.innerHTML = '<button class="custom-button" onclick="customButtonClick2()">嘉義大學安全地圖</button>';
     }
   }
  function customButtonClick2() {
@@ -96,7 +161,7 @@ class CustomControl {
 
     constructor(controlDiv, map) {
       // 在這裡可以自定義按鈕的外觀和功能
-      controlDiv.innerHTML = '<button onclick="customButtonClick()">即時事故資訊</button>';
+      controlDiv.innerHTML = '<button class="custom-button" onclick="customButtonClick()">即時事故資訊</button>';
     }
   }
  function customButtonClick() {
@@ -111,7 +176,7 @@ class CustomControl {
   class CustomControl1 {
     constructor(controlDiv, map) {
       // 在這裡可以自定義按鈕的外觀和功能
-      controlDiv.innerHTML = '<button onclick="customButtonClick1()">查看危險路口</button>';
+      controlDiv.innerHTML = '<button class="custom-button"  onclick="customButtonClick1()">查看危險路口</button>';
     }
   }
  function customButtonClick1() {
@@ -130,6 +195,8 @@ class CustomControl {
 			console.log("危險:",danger);
 			
 			console.log("安全地圖:", NCYUmap);
+
+      console.log("嘉寶:", addtion);
 			navigator.geolocation.getCurrentPosition(success, error);
 			// 定義地圖的中心位置
 			
@@ -163,6 +230,12 @@ class CustomControl {
 
 	customControlDiv2.index = 1;
     map.controls[google.maps.ControlPosition.TOP_RIGHT].push(customControlDiv2);
+
+    const customControlDiv3 = document.createElement("div");
+   		 const customControl3 = new CustomControl3(customControlDiv3, map);
+
+    customControlDiv3.index = 1;
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(customControlDiv3);
 
 			// 載入JSON資料
 			if(accident == 1){
@@ -258,6 +331,111 @@ class CustomControl {
 			  });
 		
 }
+
+if(addtion==1){
+
+
+  // 創建一個表單元素
+var form = document.createElement('form');
+// 在表單中添加標題輸入框
+
+var titleInput = document.createElement('textarea');
+titleInput.type = 'text';
+
+form.appendChild(titleInput);
+
+// 在表單中添加內容輸入框
+var contentInput = document.createElement('textarea');
+
+form.appendChild(contentInput);
+
+// 在表單中添加提交按鈕
+var submitButton = document.createElement('input');
+submitButton.type = 'button';
+submitButton.value = '添加';
+submitButton.className = 'custom-button1';
+
+
+
+submitButton.addEventListener('click', function() {
+    // 取得使用者輸入的標題和內容
+    var title = titleInput.value;
+    var content = contentInput.value;
+
+    // 檢查是否輸入了標題
+    if (title.trim() === '') {
+        alert('請輸入標題');
+        return;
+    }
+// 在地圖上監聽點擊事件
+google.maps.event.addListener(map, 'click', function(event) {
+    // 取得點擊的座標
+    var clickedLocation = event.latLng;
+
+    // 將經緯度顯示在表單中或進行其他處理
+    console.log('點擊座標：', clickedLocation.lat(), clickedLocation.lng());
+
+
+    image = 'Chiabao.png'
+				   // 選擇圖示
+				   var icon = {
+					
+			        url: image,
+			        scaledSize: new google.maps.Size(50, 50),
+					anchor: new google.maps.Point(0, 0),
+					fillOpacity: 1.0
+			      };
+    // 在地圖上添加一個標記
+    var marker = new google.maps.Marker({
+        position: clickedLocation,
+        map: map,
+        icon: icon
+    });
+
+    // 創建 InfoWindow 的內容
+    var infoContent = '<div id="content">' +
+        '<h1 >' +title + '</h1>' +
+        '<p>內容: ' + content + '</p>' +
+        '</div>';
+
+    // 創建 InfoWindow
+    var infowindow = new google.maps.InfoWindow({
+        content: infoContent
+    });
+
+    // 在標記上添加點擊事件，當使用者點擊標記時顯示 InfoWindow
+    marker.addListener('click', function() {
+        infowindow.open(map, marker);
+    });
+
+    /* //儲存進json中
+     var Data = {
+      lat:"",
+      lng:"",
+      png:"",
+      content:""
+    }
+    Data.lat = clickedLocation.lat();
+    Data.lng = clickedLocation.lng();
+    Data.content = content;
+    var jsonString = JSON.stringify(Data);
+    localStorage.setItem('Data', jsonString);
+    console.log(jsonString);*/
+});
+
+
+    // 關閉表單
+    form.style.display = 'none';
+ 
+});
+
+form.appendChild(submitButton);
+
+// 在地圖上添加表單
+map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(form);
+
+
+}
 			if(danger==1){
 			  var heatMapData = [
   {location: new google.maps.LatLng(23.46934655140745, 120.45436156926964), weight: 4},
@@ -339,77 +517,7 @@ var heatmap = new google.maps.visualization.HeatmapLayer({
 });
 heatmap.setMap(map);
 			}
-//計算路徑
-// 創建搜尋欄
-/*var input1 = document.getElementById('start');
-        var searchBox = new google.maps.places.SearchBox(input1);
-        map.controls[google.maps.ControlPosition.TOP_CENTER].push(input1);
 
-        // 監聽搜尋框的變化
-        map.addListener('bounds_changed', function() {
-          searchBox.setBounds(map.getBounds());
-        });
-
-        // 當使用者選擇建議時，在地圖上顯示選定的位置
-        searchBox.addListener('places_changed', function() {
-          var places = searchBox.getPlaces();
-
-          if (places.length == 0) {
-            return;
-          }
-
-          var bounds = new google.maps.LatLngBounds();
-          places.forEach(function(place) {
-            if (!place.geometry) {
-              console.log("Returned place contains no geometry");
-              return;
-            }
-
-            // 調整地圖視窗以顯示所選定的位置
-            if (place.geometry.viewport) {
-              bounds.union(place.geometry.viewport);
-            } else {
-              bounds.extend(place.geometry.location);
-            }
-          });
-
-          map.fitBounds(bounds);
-        });
-// 創建搜尋欄
-var input2 = document.getElementById('end');
-        var searchBox2 = new google.maps.places.SearchBox(input2);
-        map.controls[google.maps.ControlPosition.TOP_CENTER].push(input2);
-
-        // 監聽搜尋框的變化
-        map.addListener('bounds_changed', function() {
-          searchBox2.setBounds(map.getBounds());
-        });
-
-        // 當使用者選擇建議時，在地圖上顯示選定的位置
-        searchBox2.addListener('places_changed', function() {
-          var places2 = searchBox2.getPlaces();
-
-          if (places2.length == 0) {
-            return;
-          }
-
-          var bounds2 = new google.maps.LatLngBounds();
-          places2.forEach(function(place) {
-            if (!place.geometry) {
-              console.log("Returned place contains no geometry");
-              return;
-            }
-
-            // 調整地圖視窗以顯示所選定的位置
-            if (place.geometry.viewport) {
-              bounds2.union(place.geometry.viewport);
-            } else {
-              bounds2.extend(place.geometry.location);
-            }
-          });
-
-          map.fitBounds(bounds2);
-        });*/
 
 
 var directionsService = new google.maps.DirectionsService;
@@ -426,33 +534,13 @@ var directionsService = new google.maps.DirectionsService;
       var start = document.getElementById('start').value;
         var end = document.getElementById('end').value;
 		var selectedMode = document.getElementById('mode').value;
-	/*	var avoidPoints = [
-  new google.maps.LatLng(23.474872853661417, 120.46174808141028),
-  // 添加其他要避免的點...
-];*/
-		/*const waypts = [
-			{location: '23.474872853661417, 120.46174808141028',
-			stopover: false
-		}
-		];*/
-		/*const checkboxArray = document.getElementById("waypoints");*/
-
-		/*for (let i = 0; i < checkboxArray.length; i++) {
-    			if (checkboxArray.options[i].selected) {
-      waypts.push({
-        location: checkboxArray[i].value,
-        stopover: false,
-      });
-    }
-  }*/
-
+	
       directionsService.route({
         origin: start,
         destination: end,
         travelMode: google.maps.TravelMode[selectedMode],
 		provideRouteAlternatives: true,
-	/*	waypoints: waypts,*/
-		/*optimizeWaypoints: true,*/
+	
       }, function(response, status) {
         if (status === 'OK') {
          directionsDisplay.setDirections(response);
@@ -483,15 +571,15 @@ var directionsService = new google.maps.DirectionsService;
 </head>
 <body onload="initMap()">
 	<div id="search-bar">
-
+    
 		<input id="start" type="text" placeholder	="起點...">
 		<input id="end" type="text" placeholder="終點...">	  
-		<select id="mode" onchange="calcRoute();">
+		<select class="custom-button" id="mode" onchange="calcRoute();">
 			<option value="DRIVING">汽車</option>
 			<option value="WALKING">步行</option>
 			<option value="BICYCLING">自行車</option>
 		  </select>
-		  <button id="calculate-route">路線規劃</button>
+		  <button class="custom-button" id="calculate-route">路線規劃</button>
 		</div>
 
 	
