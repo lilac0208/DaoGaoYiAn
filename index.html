@@ -45,6 +45,9 @@
     border-radius: 5px;  /* 設定按鈕的邊框半徑，使其看起來更圓角 */
     cursor: pointer;    /* 讓滑鼠指標變成手型，表示可以點擊 */
   }
+  .cen{
+    text-align: center;
+  }
 		h1,
 		h2 {
 			text-align: center;
@@ -190,13 +193,13 @@ class CustomControl {
 
   
 		function initMap() {
-			console.log("事故:",accident);
+		/*	console.log("事故:",accident);
 			
 			console.log("危險:",danger);
 			
 			console.log("安全地圖:", NCYUmap);
 
-      console.log("嘉寶:", addtion);
+      console.log("嘉寶:", addtion);*/
 			navigator.geolocation.getCurrentPosition(success, error);
 			// 定義地圖的中心位置
 			
@@ -319,8 +322,10 @@ class CustomControl {
 
 			      // 建立InfoWindow物件
 			      var infoWindow = new google.maps.InfoWindow({
-               content: `<img src="./NCYUMAP/${item.png}.png " alt="Image" style="max-width: 100%;">`
-			    
+               content: `<img src="./NCYUMAP/${item.png}.png " alt="Image" style="max-width: 100%;">
+               <h3 class ="cen">建議：${item.rec}</h3>
+               `
+              
 			      });
 
 			      // 在標記上添加點擊事件
