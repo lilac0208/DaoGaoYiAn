@@ -234,11 +234,11 @@ class CustomControl {
 	customControlDiv2.index = 1;
     map.controls[google.maps.ControlPosition.TOP_RIGHT].push(customControlDiv2);
 
-    const customControlDiv3 = document.createElement("div");
+   /* const customControlDiv3 = document.createElement("div");
    		 const customControl3 = new CustomControl3(customControlDiv3, map);
 
     customControlDiv3.index = 1;
-    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(customControlDiv3);
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push(customControlDiv3);*/
 
 			// 載入JSON資料
 			if(accident == 1){
@@ -259,7 +259,7 @@ class CustomControl {
 				   var icon = {
 					
 			        url: image,
-			        scaledSize: new google.maps.Size(40, 40),
+			        scaledSize: new google.maps.Size(65, 65),
 					anchor: new google.maps.Point(0, 0),
 					fillOpacity: 1.0
 			      };
@@ -372,8 +372,13 @@ submitButton.addEventListener('click', function() {
         alert('請輸入標題');
         return;
     }
+    var infoWindowDisplayed = false;
 // 在地圖上監聽點擊事件
 google.maps.event.addListener(map, 'click', function(event) {
+
+  if (infoWindowDisplayed) {
+        return;
+    }
     // 取得點擊的座標
     var clickedLocation = event.latLng;
 
@@ -411,27 +416,16 @@ google.maps.event.addListener(map, 'click', function(event) {
     // 在標記上添加點擊事件，當使用者點擊標記時顯示 InfoWindow
     marker.addListener('click', function() {
         infowindow.open(map, marker);
+ 
     });
 
-    /* //儲存進json中
-     var Data = {
-      lat:"",
-      lng:"",
-      png:"",
-      content:""
-    }
-    Data.lat = clickedLocation.lat();
-    Data.lng = clickedLocation.lng();
-    Data.content = content;
-    var jsonString = JSON.stringify(Data);
-    localStorage.setItem('Data', jsonString);
-    console.log(jsonString);*/
+    
 });
 
 
     // 關閉表單
     form.style.display = 'none';
- 
+   
 });
 
 form.appendChild(submitButton);
@@ -439,7 +433,7 @@ form.appendChild(submitButton);
 // 在地圖上添加表單
 map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(form);
 
-
+infoWindowDisplayed = true; // 設置為已顯示
 }
 			if(danger==1){
 			  var heatMapData = [
