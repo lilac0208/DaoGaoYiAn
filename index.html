@@ -204,11 +204,27 @@ class CustomControl {
 			// 定義地圖的中心位置
 			
 			var mapCenter = {lat: 23.468068723635856, lng:120.48487789606068};
-			
+			var mapStyle = [
+    {
+        featureType: 'road',
+        elementType: 'labels',
+        stylers: [
+            { visibility: 'off' } // 將道路名稱隱藏
+        ]
+    },
+    {
+        featureType: 'poi',
+        elementType: 'labels',
+        stylers: [
+            { visibility: 'off' } // 將地名隱藏
+        ]
+    }
+];
 			// 建立地圖
 			var map = new google.maps.Map(document.getElementById('map'), {
 				zoom: 16,
-				center: mapCenter
+				center: mapCenter,
+        styles: mapStyle // 套用自訂樣式
 			});
 			const trafficLayer = new google.maps.TrafficLayer();//路況
 
