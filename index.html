@@ -263,7 +263,7 @@ class CustomControl {
 			  .then(data => {
 			    data.forEach(item => {
 			      // 取得每一個地點的座標
-			      var location = {lat: item.lat, lng: item.lng};
+			      var location = {lat: float(item.lat), lng: float(item.lng)};
 				  var image ='其他.png'
 					if(item.roadtype =='道路施工')
 					image = '道路施工.png'
